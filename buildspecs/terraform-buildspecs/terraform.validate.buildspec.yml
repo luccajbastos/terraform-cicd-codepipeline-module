@@ -1,0 +1,50 @@
+version: 0.2
+
+env:
+  variables:
+    CODE_SRC_DIR: "."
+    TF_VERSION: "1.8.5"
+    ENVIRONMENT: "prd"
+    SKIPVALIDATIONFAILURE: "F"
+    ENABLE_TFVALIDATE: "Y"
+    ENABLE_TFFORMAT: "Y"
+    ENABLE_TFCHECKOV: "F"
+    ENABLE_TFSEC: "F"
+    TFSEC_VERSION: "v1.28.1"
+    
+phases:
+  install:
+    runtime-versions:
+      python: 3.9
+      golang: 1.14
+    commands:
+      - apk update
+      - apk add curl
+      - apk add --no-cache aws-cli
+      - apk add --no-cache wget
+      - apk add --no-cache py3-pip
+      - apk add go
+      - apk add git
+      - apk add jq
+      - "curl -s -qL -o terraform.zip https://releases.hashicorp.com/terraform/${TF_VERSION}/terraform_${TF_VERSION}_linux_amd64.zip"
+      - "unzip -o terraform.zip"
+      - "mv terraform /bin"
+      - "rm terraform.zip"
+
+  pre_build:
+    commands:
+      - "cd ${CODEBUILD_SRC_DIR}/${CODE_SRC_DIR}"
+      - "echo ## TERRAFORM INIT : Initialize the Terraform Workspace"
+      - terraform init
+      - "echo ## VALIDATION : Starting ..."
+      - terraform validate
+
+  build:
+    commands:
+      - "cd ${CODEBUILD_SRC_DIR}/${CODE_SRC_DIR}"
+      - "echo ## TERRAFORM PLAN : Generate the Terraform Plan"
+      - "terraform plan -var-file vars/prd.tfvars"
+
+artifacts:
+  files:
+    - '**/*'

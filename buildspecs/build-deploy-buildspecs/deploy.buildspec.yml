@@ -1,0 +1,37 @@
+version: 0.2
+
+env:
+  variables:
+    CODE_SRC_DIR: "."
+    TF_VERSION: "1.8.5"
+
+phases: 
+  install:
+    runtime-versions:
+      python: 3.9
+    commands:
+      - "rm -fr terraform"
+      - "curl -s -qL -o terraform.zip https://releases.hashicorp.com/terraform/${TF_VERSION}/terraform_${TF_VERSION}_linux_amd64.zip"
+      - "unzip -o terraform.zip" 
+      - "mv terraform /bin"
+      - "rm terraform.zip"
+      - . ./imageDetail.sh
+      
+  build:
+    commands:
+      - "cd ${TERRAFORM_PATH}"
+      - "echo ## TERRAFORM APPLY : Starting with the Terraform Apply"
+      - envsubst < .prd-template > prd.tfvars
+      - terraform init
+      - terraform validate
+      - terraform plan -var-file prd.tfvars
+      - terraform apply -var-file prd.tfvars -auto-approve
+      - "echo ## TERRAFORM APPLY : Completed"
+  
+  post_build:
+    commands:
+      - "echo ## TERRAFORM APPLY : Completed"
+      - "echo ## Cleanning CloudFlare cache"
+      - "cd ../../scripts"
+      - ". ./clear_cache.sh $CLOUDFLARE_API_TOKEN"
+      - "echo ## CloudFlare cache cleared"
