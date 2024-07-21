@@ -20,7 +20,7 @@ For more details, please refer to the module's [README.md](codepipeline_pipeline
 
 ## Usage Example
 
-[Aqui](examples) you will find an example of how to use the module.
+[Here](examples) you will find an example of how to use the module.
 
 ## Buildspecs de exemplo
 
