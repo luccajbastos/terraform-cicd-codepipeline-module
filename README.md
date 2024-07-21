@@ -22,7 +22,7 @@ For more details, please refer to the module's [README.md](codepipeline_pipeline
 
 [Here](examples) you will find an example of how to use the module.
 
-## Buildspecs de exemplo
+## Buildspecs Example
 
 The buildspec contains the steps that CodeBuild follows to build the application.
 
